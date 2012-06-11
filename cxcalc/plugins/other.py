@@ -7,10 +7,10 @@ class HBondAcceptors(IntegerPlugin):
     default_result_keys = ["h_bond_acceptors"]
 
 
-class HBondAcceptors74(HBondAcceptors):
+class HBondAcceptorsPH74(HBondAcceptors):
     """Number of hydrogen bond acceptor atoms of the major
     microspecies at pH=7.4"""
-    default_result_keys = ["h_bond_acceptors_74"]
+    default_result_keys = ["h_bond_acceptors_ph74"]
     default_options = "-H 7.4"
 
 
@@ -20,10 +20,10 @@ class HBondAcceptorSites(IntegerPlugin):
     default_result_keys = ["h_bond_acceptor_sites"]
 
 
-class HBondAcceptorSites74(HBondAcceptorSites):
+class HBondAcceptorSitesPH74(HBondAcceptorSites):
     """Number of hydrogen bond acceptor sites of the major microspecies
     at pH=7.4"""
-    default_result_keys = ["h_bond_acceptor_sites_74"]
+    default_result_keys = ["h_bond_acceptor_sites_ph74"]
     default_options = "-H 7.4"
 
 
@@ -33,10 +33,10 @@ class HBondDonors(IntegerPlugin):
     default_result_keys = ["h_bond_donors"]
 
 
-class HBondDonors74(HBondDonors):
+class HBondDonorsPH74(HBondDonors):
     """Number of hydrogen bond donor atoms of the major microspecies
     at pH=7.4"""
-    default_result_keys = ["h_bond_donors_74"]
+    default_result_keys = ["h_bond_donors_ph74"]
     default_options = "-H 7.4"
 
 
@@ -46,10 +46,10 @@ class HBondDonorSites(IntegerPlugin):
     default_result_keys = ["h_bond_donor_sites"]
 
 
-class HBondDonorSites74(HBondDonorSites):
+class HBondDonorSitesPH74(HBondDonorSites):
     """Number of hydrogen bond donor sites of the major microspecies
     at pH=7.4"""
-    default_result_keys = ["h_bond_donor_sites_74"]
+    default_result_keys = ["h_bond_donor_sites_ph74"]
     default_options = "-H 7.4"
 
 
@@ -59,10 +59,10 @@ class HMOPiEnergy(FloatPlugin):
     default_result_keys = ["hmo_pi_energy"]
 
 
-class HMOPiEnergy74(HMOPiEnergy):
+class HMOPiEnergyPH74(HMOPiEnergy):
     """Pi energy of the aromatic ring(s) (dimension beta) of the major
     microspecies at pH=7.4"""
-    default_result_keys = ["hmo_pi_energy_74"]
+    default_result_keys = ["hmo_pi_energy_ph74"]
     default_options = "-H 7.4"
 
 

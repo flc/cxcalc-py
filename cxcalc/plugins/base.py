@@ -47,8 +47,6 @@ class Plugin(object):
         """
         :param values: list of values coming from this plugin
         """
-        print self.coerce
-        print values
         try:
             value = values[self.result_column_offset]
         except IndexError:

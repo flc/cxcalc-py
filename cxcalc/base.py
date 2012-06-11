@@ -78,7 +78,6 @@ class Calculator(object):
             else:
                 data.update(plugin_data)
 
-        print data
         return data
 
     def _read(self, reader_func, buff=None):
@@ -137,5 +136,4 @@ class Calculator(object):
         from cStringIO import StringIO
         out = StringIO(output)
         self._read(out.read)
-
 
