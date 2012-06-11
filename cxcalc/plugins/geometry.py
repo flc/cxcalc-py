@@ -193,10 +193,10 @@ class VdWSA(FloatPlugin):
     default_result_keys = ["vdwsa"]
 
 
-class VdWSA74(VdWSA):
+class VdWSAPH74(VdWSA):
     """Van der Waals surface area of the major microspecies at pH=7.4"""
     default_options = "-H 7.4"
-    default_result_keys = ["vdwsa_74"]
+    default_result_keys = ["vdwsa_ph74"]
 
 
 class PlattIndex(IntegerPlugin):
@@ -211,10 +211,10 @@ class PolarSurfaceArea(FloatPlugin):
     default_result_keys = ["polar_surface_area"]
 
 
-class PolarSurfaceArea74(PolarSurfaceArea):
+class PolarSurfaceAreaPH74(PolarSurfaceArea):
     """Topological polar surface area of the major microspecies at pH=7.4"""
     default_options = "-H 7.4"
-    default_result_keys = ["polar_surface_area_74"]
+    default_result_keys = ["polar_surface_area_ph74"]
 
 
 class RandicIndex(FloatPlugin):
