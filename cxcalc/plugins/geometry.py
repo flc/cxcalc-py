@@ -48,14 +48,36 @@ class AromaticMemberedRings(IntegerPlugin):
 
 class ASA(FloatPlugin):
     """Total solvent accessible surface area (in Angstrom2)
-    of major microspecies"""
+    of major microspecies;
+    Solvent accessible surface area (in Angstrom2) of all atoms with
+    positive partial charge;
+    Solvent accessible surface area (in Angstrom2) of all atoms with
+    negative partial charge;
+    Solvent accessible surface area (in Angstrom2) of all hydrophobic
+    (|qi|<0.125) atoms (|qi| is the absolute value of the partial charge
+    of the atom);
+    Solvent accessible surface area (in Angstrom2) of all polar (|qi|>0.125)
+    atoms (|qi| is the absolute value of the partial charge of the atom);
+    """
     name = "asa"
     default_result_keys = ["asa", "asa_pos", "asa_neg", "asa_h", "asa_p"]
+    result_columns_num = 5
 
 
 class ASAPH74(ASA):
     """Total solvent accessible surface area (in Angstrom2)
-    of major microspecies at pH=7.4"""
+    of major microspecies at pH=7.4;
+    Solvent accessible surface area (in Angstrom2) of all atoms with positive
+    partial charge of major microspecies at pH=7.4;
+    Solvent accessible surface area (in Angstrom2) of all atoms with negative
+    partial charge of major microspecies at pH=7.4;
+    Solvent accessible surface area (in Angstrom2) of all hydrophobic
+    (|qi|<0.125) atoms (|qi| is the absolute value of the partial charge
+    of the atom) of major microspecies at pH=7.4;
+    Solvent accessible surface area (in Angstrom2) of all polar (|qi|>0.125)
+    atoms (|qi| is the absolute value of the partial charge of the atom) of
+    major microspecies at pH=7.4;
+    """
     default_options = "-H 7.4"
     default_result_keys = ["asa_ph74", "asa_ph74_pos", "asa_ph74_neg",
                            "asa_ph74_h", "asa_ph74_p"]
@@ -77,7 +99,7 @@ class BalabanIndex(FloatPlugin):
 
 class Bonds(IntegerPlugin):
     """Number of bonds including bonds of hydrogen atoms"""
-    name = "boundcount"
+    name = "bondcount"
     default_result_keys = ["bonds"]
 
 
@@ -250,6 +272,12 @@ class RingSystems(IntegerPlugin):
     """Number of disjunct ring systems"""
     name = "ringsystemcount"
     default_result_keys = ["ring_systems"]
+
+
+class RotatableBonds(IntegerPlugin):
+    """Number of rotatable bonds"""
+    name = "rotatablebondcount"
+    default_result_keys = ["rotatable_bonds"]
 
 
 class SmallestRingSize(IntegerPlugin):
