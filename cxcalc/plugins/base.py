@@ -47,11 +47,10 @@ class Plugin(object):
         """
         :param values: list of values coming from this plugin
         """
-        try:
-            value = values[self.result_column_offset]
-        except IndexError:
-            value = None
-        else:
+        offset = self.result_column_offset
+        values = values[offset:offset + len(self.result_keys)]
+        _values = []
+        for value in values:
             if "FAILED" in value:
                 value = None
                 logger.warning("%s failed: %s", self.name, values)
@@ -62,9 +61,8 @@ class Plugin(object):
                 value = None
             else:
                 value = self.coerce(value)
-        return [
-            (self.result_keys[0], value),
-        ]
+            _values.append(value)
+        return zip(self.result_keys, _values)
 
 
 FloatPlugin = Plugin
