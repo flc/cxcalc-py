@@ -14,7 +14,7 @@ class Calculator(object):
         )
     default_options = "-N h -i ID"
 
-    def __init__(self, plugins, options=None, bin_path=None):
+    def __init__(self, plugins, options=None, bin_path=None, callback=None):
         self.plugins = plugins
 
         if options is None:
@@ -26,12 +26,14 @@ class Calculator(object):
         assert os.path.isfile(bin_path)
         self.bin_path = bin_path
 
+        self._callback = callback
+
     def create_process(self):
         command = self.get_params_list()
         logger.debug("command: %s", command)
         process = subprocess.Popen(
                             self.get_params_list(),
-                            #shell=True,
+                            shell=False,
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
@@ -47,6 +49,11 @@ class Calculator(object):
 
     def get_params(self):
         return " ".join(self.get_params_list())
+
+    def callback(self, data):
+        logger.debug("callback data: %s", data)
+        if self._callback is not None:
+            self._callback(data)
 
     def process_line(self, line):
         values = line.strip().split("\t")
@@ -70,13 +77,15 @@ class Calculator(object):
             try:
                 plugin_data = plugin.get_result_values(plugin_values)
             except Exception, e:
-                #log.exception(e)
-                #log.debug('line: %s', line)
-                #log.debug('fields: %s', fields)
+                logger.exception(e)
+                logger.debug('line: %s', line)
+                logger.debug('values: %s', values)
                 raise
                 #return {}
             else:
                 data.update(plugin_data)
+
+        self.callback(data)
 
         return data
 
@@ -94,46 +103,62 @@ class Calculator(object):
                 chars = []
                 logger.debug("line: %s", line)
                 self.process_line(line)
-                #yield line
 
     def _write(self, process, iterator):
+        stdin = process.stdin
+        write = stdin.write
+        flush = stdin.flush
         for el in iterator:
-            process.stdin.write(el + "\n")
-            process.stdin.flush()
+            write(el + "\n")
+            flush()
+        stdin.close()
+
+    def run(self, mol_iterator, capture=False):
+        process = self.create_process()
+
+        out_buff = None
+        error_buff = None
+        if capture:
+            out_buff = []
+            error_buff = []
+
+        writer_thread = threading.Thread(target=self._write,
+                                         args=(process, mol_iterator))
+        writer_thread.daemon = True
+
+        reader_thread = threading.Thread(
+                                    target=self._read,
+                                    args=(process.stdout.read, out_buff)
+                                    )
+        reader_thread.daemon = True
+
+        error_reader_thread = threading.Thread(
+                                    target=self._read,
+                                    args=(process.stderr.read, error_buff)
+                                    )
+        error_reader_thread.daemon = True
+
+        threads = [writer_thread, reader_thread, error_reader_thread]
+        for th in threads:
+            th.start()
+        for th in threads:
+            th.join()
+
+        #process.poll()
+        process.wait()
+
+        process.stdout.close()
+        process.stderr.close()
+
+        status = process.returncode
+
+        return status
 
     #def run(self, mol_iterator):
         #process = self.create_process()
-
-
-        #w_thread = threading.Thread(target=self._write,
-                                    #args=(process, mol_iterator))
-        #w_thread.daemon = True
-
-
-        #stdout_buff = []
-        #r_thread = threading.Thread(target=self._read,
-                                  #args=(process.stdout.read, stdout_buff))
-        #r_thread.daemon = True
-
-
-        #threads = [w_thread, r_thread]
-        #for th in threads:
-            #th.start()
-        #for th in threads:
-            #th.join()
-
-        #process.wait()
-        ##process.stdout.close()
-        ##process.stderr.close()
-        #status = process.returncode
-        #print stdout_buf
-        #return status
-
-    def run(self, mol_iterator):
-        process = self.create_process()
-        inp = "\n".join(list(mol_iterator))
-        output = process.communicate(input=inp)[0]
-        from cStringIO import StringIO
-        out = StringIO(output)
-        self._read(out.read)
+        #inp = "\n".join(list(mol_iterator))
+        #output = process.communicate(input=inp)[0]
+        #from cStringIO import StringIO
+        #out = StringIO(output)
+        #self._read(out.read)
 
