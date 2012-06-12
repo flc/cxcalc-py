@@ -31,6 +31,12 @@ class Formula(StringPlugin):
     default_result_keys = ["formula"]
 
 
+class DotDisconnectedFormula(StringPlugin):
+    """Dot-disconnected chemical formula according to the Hill system"""
+    name = "dotdisconnectedformula"
+    default_result_keys = ["dot_disconnected_formula"]
+
+
 class ExactMass(FloatPlugin):
     """Monoisotopic molecule mass calculated from the atomic masses of the
     most frequent natural isotopes"""
