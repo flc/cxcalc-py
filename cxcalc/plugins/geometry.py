@@ -306,7 +306,7 @@ class SzegedIndex(IntegerPlugin):
     default_result_keys = ["szeged_index"]
 
 
-class WienerIndex(FloatPlugin):
+class WienerIndex(IntegerPlugin):
     """Average topological atom distance
     (half of the sum of all atom distances)"""
     # XXX 8 as value?
