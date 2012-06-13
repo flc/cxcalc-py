@@ -5,9 +5,6 @@ import logging
 from subprocess import Popen, PIPE
 
 
-logger = logging.getLogger(__name__)
-
-
 class Calculator(object):
     default_bin_path = os.path.join(
         os.environ["VIRTUAL_ENV"], "marvinbeans", "bin", "cxcalc"
@@ -28,17 +25,24 @@ class Calculator(object):
 
         self._callback = callback
 
+        self._all_columns_num = self.get_all_columns_num()
+        self._process = None
+
     def create_process(self):
         command = self.get_params_list()
         logger.debug("command: %s", command)
-        process = subprocess.Popen(
-                            self.get_params_list(),
-                            shell=False,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            )
-        return process
+        return subprocess.Popen(
+                                self.get_params_list(),
+                                shell=False,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                )
+
+    def get_process(self):
+        if self._process is None:
+            self._process = self.create_process()
+        return self._process
 
     def get_params_list(self):
         params = [self.bin_path]
@@ -55,35 +59,49 @@ class Calculator(object):
         if self._callback is not None:
             self._callback(data)
 
-    def process_line(self, line):
-        values = line.strip().split("\t")
+    def get_all_columns_num(self):
+        columns_num = 1  # id + plugin columns
+        for plugin in self.plugins:
+            columns_num += plugin.get_result_columns_num()
+        return columns_num
 
-        try:
-            _id = int(values[0])
-        except ValueError:
-            return {}
+    def process_line(self, line):
+        #values = line.strip().split("\t")
+        values = [v.strip() for v in line.split("\t")]
+        logger.debug("line values: %s | len: %s", values, len(values))
+        #print values
+        _id = values[0]
 
         data = {
             "id": _id,
         }
 
-        current = 1
-        for plugin in self.plugins:
-            column_num = plugin.get_result_columns_num()
-            _from = current
-            _to = current + column_num
-            plugin_values = values[_from:_to]
-            current = _to
-            try:
-                plugin_data = plugin.get_result_values(plugin_values)
-            except Exception, e:
-                logger.exception(e)
-                logger.debug('line: %s', line)
-                logger.debug('values: %s', values)
-                raise
-                #return {}
-            else:
-                data.update(plugin_data)
+        failed = False
+        if len(values) != self._all_columns_num:
+            logger.error("Column number mismatch: %s "
+                         "| actual len: %s | should be: %s",
+                         values, len(values), self._all_columns_num)
+            failed = True
+
+        if not failed:
+            current = 1
+            for plugin in self.plugins:
+                column_num = plugin.get_result_columns_num()
+                _from = current
+                _to = current + column_num
+                plugin_values = values[_from:_to]
+                current = _to
+                logger.debug("plugin values (%s): %s", plugin.name, plugin_values)
+                try:
+                    plugin_data = plugin.get_result_values(plugin_values)
+                except Exception, e:
+                    logger.exception(e)
+                    logger.debug('exception | line: %s', line)
+                    logger.debug('exception | values: %s', values)
+                    raise
+                    #return {}
+                else:
+                    data.update(plugin_data)
 
         self.callback(data)
 
@@ -102,28 +120,41 @@ class Calculator(object):
                     buff.append(line.rstrip())
                 chars = []
                 logger.debug("line: %s", line)
+                logger.debug("line: %s", line.replace("\t", "<TAB>"))
                 self.process_line(line)
 
-    def _write(self, process, iterator):
+    def _write(self, process, iterable):
         stdin = process.stdin
         write = stdin.write
         flush = stdin.flush
-        for el in iterator:
-            write(el + "\n")
+        for el in iterable:
+            write(el)
             flush()
         stdin.close()
 
-    def run(self, mol_iterator, capture=False):
+    def run(self, iterable):
         process = self.create_process()
 
+        self._run(process, iterable)
+
+        process.wait()
+
+        process.stdout.close()
+        process.stderr.close()
+
+        status = process.returncode
+
+        return status
+
+    def _run(self, process, iterable):
         out_buff = None
         error_buff = None
-        if capture:
-            out_buff = []
-            error_buff = []
+        #if capture:
+            #out_buff = []
+            #error_buff = []
 
         writer_thread = threading.Thread(target=self._write,
-                                         args=(process, mol_iterator))
+                                         args=(process, iterable))
         writer_thread.daemon = True
 
         reader_thread = threading.Thread(
@@ -144,21 +175,13 @@ class Calculator(object):
         for th in threads:
             th.join()
 
-        #process.poll()
-        process.wait()
-
-        process.stdout.close()
-        process.stderr.close()
-
-        status = process.returncode
-
-        return status
-
-    #def run(self, mol_iterator):
+    #def run_(self, mol_iterator):
         #process = self.create_process()
         #inp = "\n".join(list(mol_iterator))
         #output = process.communicate(input=inp)[0]
         #from cStringIO import StringIO
         #out = StringIO(output)
         #self._read(out.read)
+
+
 
