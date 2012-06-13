@@ -56,8 +56,10 @@ class Plugin(object):
                 logger.warning("%s failed: %s", self.name, values)
             elif value == '\xe2\x88\x9e':
                 # XXX INF?
+                logger.warning("%s value is inf: %s", self.name, values)
                 value = None
             elif value == "":
+                logger.warning("%s empty value: %s", self.name, values)
                 value = None
             else:
                 value = self.coerce(value)
