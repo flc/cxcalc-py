@@ -5,6 +5,9 @@ import logging
 from subprocess import Popen, PIPE
 
 
+logger = logging.getLogger(__name__)
+
+
 class Calculator(object):
     default_bin_path = os.path.join(
         os.environ["VIRTUAL_ENV"], "marvinbeans", "bin", "cxcalc"
