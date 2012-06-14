@@ -194,7 +194,7 @@ class HyperWienerIndex(FloatPlugin):
     """A variant of the Wiener index"""
     # XXX 8 as value?
     name = "hyperwienerindex"
-    default_result_keys = ["hyperwienerindex"]
+    default_result_keys = ["hyper_wiener_index"]
 
 
 class LargestRingSize(IntegerPlugin):
