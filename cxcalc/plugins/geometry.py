@@ -14,6 +14,7 @@ class AliphaticBonds(IntegerPlugin):
 
 
 class AliphaticRings(IntegerPlugin):
+    """Number of aliphatic rings"""
     name = "aliphaticringcount"
     default_result_keys = ["aliphatic_rings"]
 
@@ -47,8 +48,7 @@ class AromaticMemberedRings(IntegerPlugin):
 
 
 class ASA(FloatPlugin):
-    """Total solvent accessible surface area (in Angstrom2)
-    of major microspecies;
+    """Total solvent accessible surface area (in Angstrom2);
     Solvent accessible surface area (in Angstrom2) of all atoms with
     positive partial charge;
     Solvent accessible surface area (in Angstrom2) of all atoms with
@@ -104,6 +104,7 @@ class Bonds(IntegerPlugin):
 
 
 class CarbonRings(IntegerPlugin):
+    """Number of rings containing carbon atoms only"""
     name = "carboringcount"
     default_result_keys = ["carbon_rings"]
 
@@ -134,7 +135,7 @@ class ChainBonds(IntegerPlugin):
 
 
 class ChiralCenters(IntegerPlugin):
-    """Number of tetrahedral stereogenic center atoms."""
+    """Number of tetrahedral stereogenic center atoms"""
     name = "chiralcentercount"
     default_result_keys = ["chiral_centers"]
 
