@@ -190,7 +190,7 @@ class HeteroRings(IntegerPlugin):
     default_result_keys = ["hetero_rings"]
 
 
-class HyperWienerIndex(FloatPlugin):
+class HyperWienerIndex(IntegerPlugin):
     """A variant of the Wiener index"""
     # XXX 8 as value?
     name = "hyperwienerindex"
