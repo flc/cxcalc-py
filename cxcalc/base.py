@@ -1,7 +1,7 @@
+import logging
 import os
 import subprocess
 import threading
-import logging
 from subprocess import Popen, PIPE
 
 
@@ -27,7 +27,6 @@ class Calculator(object):
         self.bin_path = bin_path
 
         self._callback = callback
-
         self._all_columns_num = self.get_all_columns_num()
         self._process = None
 
@@ -110,7 +109,7 @@ class Calculator(object):
 
         return data
 
-    def _read(self, reader_func, buff=None):
+    def _read(self, reader_func, buff=None, err=False):
         chars = []
         while True:
             char = reader_func(1)
@@ -122,9 +121,19 @@ class Calculator(object):
                 if buff is not None:
                     buff.append(line.rstrip())
                 chars = []
-                logger.debug("line: %s", line)
-                logger.debug("line: %s", line.replace("\t", "<TAB>"))
-                self.process_line(line)
+                if err:
+                    log_func = logger.warning
+                else:
+                    log_func = logger.debug
+                log_func("%s line: %s",
+                         "stderr" if err else "stdout",
+                         line)
+                if not err:
+                    logger.debug("%s line: %s",
+                                 "stderr" if err else "stdout",
+                                 line.replace("\t", "<TAB>"))
+                if not err:
+                    self.process_line(line)
 
     def _write(self, process, iterable):
         stdin = process.stdin
@@ -162,13 +171,13 @@ class Calculator(object):
 
         reader_thread = threading.Thread(
                                     target=self._read,
-                                    args=(process.stdout.read, out_buff)
+                                    args=(process.stdout.read, out_buff, False)
                                     )
         reader_thread.daemon = True
 
         error_reader_thread = threading.Thread(
                                     target=self._read,
-                                    args=(process.stderr.read, error_buff)
+                                    args=(process.stderr.read, error_buff, True)
                                     )
         error_reader_thread.daemon = True
 
@@ -185,6 +194,3 @@ class Calculator(object):
         #from cStringIO import StringIO
         #out = StringIO(output)
         #self._read(out.read)
-
-
-
