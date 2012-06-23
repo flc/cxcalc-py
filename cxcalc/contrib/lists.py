@@ -110,6 +110,8 @@ _geometry_plugins = [
     FusedRings(),
     HararyIndex(),
     HeteroAliphaticRings(),
+    HeteroAromaticRings(),
+    HeteroRings(),
     HyperWienerIndex(),
     LargestRingSize(),
     LargestRingSystemSize(),
