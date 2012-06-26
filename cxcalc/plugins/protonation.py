@@ -10,10 +10,16 @@ logger = logging.getLogger(__name__)
 class Pka(IntegerPlugin):
     """Number of negative charges on the major microspecies at pH=7.4;
     Number of positive charges on the major microspecies at pH=7.4;
-    Total charge on the major microspecies at pH=7.4"""
+    Total charge on the major microspecies at pH=7.4;
+    Number of charges on the major microspecies at pH=7.4;
+    Lowest acidic pKa;
+    Highest basic pKa"""
     name = "pka"
     default_options = "-a 10 -b 10 -d large"
-    default_result_keys = ["pka_positive", "pka_negative", "pka_total"]
+    default_result_keys = [
+        "pka_positive", "pka_negative", "pka_total",
+        "pka_number", "pka_strongest_acidic", "pka_strongest_basic"
+        ]
     result_columns_num = 20 + 1
 
     def __init__(self, ph=None, *args, **kwargs):
@@ -56,6 +62,7 @@ class Pka(IntegerPlugin):
         bpka = self.get_num_basic_pka()
 
         pka_neg_d = values[:apka]
+        pka_strongest_acidic = None
         if not pka_neg_d:
             # it's empty
             pka_negative = 0
@@ -63,10 +70,13 @@ class Pka(IntegerPlugin):
             pka_negative = None
             logger.warning("pka negative failed: %s", values)
         else:
-            pka_negative = len([d for d in pka_neg_d
-                                if d and float(d) < self.ph])
+            float_values = [float(v) for v in pka_neg_d if v]
+            pka_negative = len([v for v in float_values if v < self.ph])
+            if float_values:
+                pka_strongest_acidic = min(float_values)
 
         pka_pos_d = values[apka:apka+bpka]
+        pka_strongest_basic = None
         if not pka_pos_d:
             # it's empty
             pka_positive = 0
@@ -74,15 +84,22 @@ class Pka(IntegerPlugin):
             pka_positive = None
             logger.warning("pka positive failed: %s", values)
         else:
-            pka_positive = len([d for d in pka_pos_d
-                                if d and float(d) > self.ph])
+            float_values = [float(v) for v in pka_pos_d if v]
+            pka_positive = len([v for v in float_values if v > self.ph])
+            if float_values:
+                pka_strongest_basic = max(float_values)
 
         if pka_negative is None or pka_positive is None:
             pka_total = None
+            pka_number = None
         else:
             pka_total = pka_positive - pka_negative
+            pka_number = pka_positive + pka_negative
 
-        return zip(self.result_keys, [pka_positive, pka_negative, pka_total])
+        return zip(self.result_keys, [
+            pka_positive, pka_negative, pka_total,
+            pka_number, pka_strongest_acidic, pka_strongest_basic,
+            ])
 
 
 class AvgCharge(FloatPlugin):
