@@ -1,2 +1,2 @@
-from .base import Calculator
+from .base import Calculator, CollectCalculator
 from .plugins import *
