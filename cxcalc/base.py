@@ -194,3 +194,16 @@ class Calculator(object):
         #from cStringIO import StringIO
         #out = StringIO(output)
         #self._read(out.read)
+
+
+class CollectCalculator(Calculator):
+
+    def __init__(self, *args, **kwargs):
+        super(CollectCalculator, self).__init__(*args, **kwargs)
+        self._data = []
+
+    def callback(self, data):
+        self._data.append(data)
+
+    def get_data(self):
+        return self._data
