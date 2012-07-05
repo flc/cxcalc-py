@@ -275,6 +275,11 @@ class RingSystems(IntegerPlugin):
     default_result_keys = ["ring_systems"]
 
 
+class RingSystemSize(IntegerPlugin):
+    """Number of disjunct ring systems with the given size"""
+    name = "ringsystemcountofsize"
+
+
 class RotatableBonds(IntegerPlugin):
     """Number of rotatable bonds"""
     name = "rotatablebondcount"
