@@ -17,7 +17,7 @@ class Pka(IntegerPlugin):
     name = "pka"
     default_options = "-a 10 -b 10 -d large"
     default_result_keys = [
-        "pka_positive", "pka_negative", "pka_total",
+        "pka_negative", "pka_positive", "pka_total",
         "pka_number", "pka_strongest_acidic", "pka_strongest_basic"
         ]
     result_columns_num = 20 + 1
@@ -97,7 +97,7 @@ class Pka(IntegerPlugin):
             pka_number = pka_positive + pka_negative
 
         return zip(self.result_keys, [
-            pka_positive, pka_negative, pka_total,
+            pka_negative, pka_positive, pka_total,
             pka_number, pka_strongest_acidic, pka_strongest_basic,
             ])
 
