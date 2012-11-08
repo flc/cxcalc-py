@@ -7,3 +7,4 @@ from .charge import *
 from .geometry import *
 from .isomers import *
 from .other import *
+from .conformers import *

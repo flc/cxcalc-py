@@ -7,19 +7,12 @@ __all__ = ["Plugin", "FloatPlugin", "StringPlugin", "IntegerPlugin"]
 logger = logging.getLogger(__name__)
 
 
-class Plugin(object):
+class PluginBase(object):
     name = None
     default_options = ""
-    default_result_keys = []
-    result_columns_num = 1
-    result_column_offset = 0
-    coerce = float
+    required_options = []
 
-    def __init__(self, result_keys=None, options=None):
-        if result_keys is None:
-            result_keys = self.default_result_keys[:]
-        self.result_keys = result_keys
-
+    def __init__(self, options=None):
         if options is None:
             options = self.default_options
         if isinstance(options, basestring):
@@ -27,15 +20,29 @@ class Plugin(object):
                 options = options.split(" ")
             else:
                 options = []
-        self.options = options
+        self.options = self.required_options + options
 
     def get_params_list(self):
         params = [self.name]
-        params.extend(self.options)
+        if self.options:
+            params.extend(self.options)
         return params
 
     def get_params(self):
         return " ".join(self.get_params_list())
+
+
+class Plugin(PluginBase):
+    default_result_keys = []
+    result_columns_num = 1
+    result_column_offset = 0
+    coerce = float
+
+    def __init__(self, result_keys=None, *args, **kwargs):
+        if result_keys is None:
+            result_keys = self.default_result_keys[:]
+        self.result_keys = result_keys
+        super(Plugin, self).__init__(*args, **kwargs)
 
     def get_result_columns_num(self):
         return self.result_columns_num
@@ -81,3 +88,7 @@ class StringPlugin(Plugin):
 
 class IntegerPlugin(Plugin):
     coerce = int
+
+
+class SDFPlugin(PluginBase):
+    required_options = ["-f", "sdf"]
