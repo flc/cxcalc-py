@@ -1,2 +1,3 @@
-from .base import Calculator, CollectCalculator
+from .base import (Calculator, CollectCalculator,
+                   SDFCalculator, CollectSDFCalculator)
 from .plugins import *
