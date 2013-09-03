@@ -72,9 +72,9 @@ class Plugin(PluginBase):
                 try:
                     value = self.coerce(value)
                 except Exception, e:
-                    value = None
                     logger.error("%s coerce error | value: %s", self.name, value)
                     logger.exception(e)
+                    value = None
             _values.append(value)
         return zip(self.result_keys, _values)
 
@@ -83,7 +83,8 @@ FloatPlugin = Plugin
 
 
 class StringPlugin(Plugin):
-    coerce = unicode
+    #coerce = unicode
+    coerce = str
 
 
 class IntegerPlugin(Plugin):
