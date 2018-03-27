@@ -11,9 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 class Base(object):
-    default_bin_path = os.path.join(
-        os.environ["VIRTUAL_ENV"], "marvinbeans", "bin", "cxcalc"
-        )
+    default_bin_paths = [
+        'cxcalc',
+        os.path.join(
+            os.environ.get("VIRTUAL_ENV", "~"), "marvinbeans", "bin", "cxcalc"
+            )
+        ]
     default_options = ""
 
     def __init__(self, plugins, options=None, bin_path=None, callback=None):
@@ -24,7 +27,15 @@ class Base(object):
         self.options = options
 
         if bin_path is None:
-            bin_path = self.default_bin_path
+            for path in self.default_bin_paths:
+                if not os.path.isfile(path):
+                    continue
+                bin_path = path
+        if not bin_path:
+            raise AssertionError(
+                "cxcalc bin path couldn't be detected, please specify "
+                "the bin_path argument",
+                )
         assert os.path.isfile(bin_path)
         self.bin_path = bin_path
 
