@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 class Base(object):
     default_bin_paths = [
-        'cxcalc',
+        '/usr/local/bin/cxcalc',
+        '/usr/bin/cxcalc',
         os.path.join(
             os.environ.get("VIRTUAL_ENV", "~"), "marvinbeans", "bin", "cxcalc"
             )
