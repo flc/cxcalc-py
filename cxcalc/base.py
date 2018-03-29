@@ -175,7 +175,7 @@ class Base(object):
 
 class Calculator(Base):
     """For table output"""
-    default_options = "-N h -i ID"
+    default_options = "-g -N h -i ID"
 
     def __init__(self, *args, **kwargs):
         super(Calculator, self).__init__(*args, **kwargs)
