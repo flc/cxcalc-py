@@ -32,6 +32,7 @@ class Base(object):
                 if not os.path.isfile(path):
                     continue
                 bin_path = path
+                break
         if not bin_path:
             raise AssertionError(
                 "cxcalc bin path couldn't be detected, please specify "
