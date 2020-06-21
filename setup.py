@@ -6,7 +6,7 @@ setup(
     version="0.1",
     packages=find_packages(),
     author="Zoltan Szalai",
-    author_email="flack@mcule.com",
+    author_email="",
     description="",
-    url="https://bitbucket.org/flack/cxcalc-py",
+    url="https://github.com/flc/cxcalc-py",
 )
