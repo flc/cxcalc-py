@@ -225,7 +225,7 @@ class Calculator(Base):
                 logger.debug("plugin values (%s): %s", plugin.name, plugin_values)
                 try:
                     plugin_data = plugin.get_result_values(plugin_values)
-                except Exception, e:
+                except Exception as e:
                     logger.exception(e)
                     logger.debug('exception | line: %s', line)
                     logger.debug('exception | values: %s', values)

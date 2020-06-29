@@ -96,10 +96,10 @@ class Pka(IntegerPlugin):
             pka_total = pka_positive - pka_negative
             pka_number = pka_positive + pka_negative
 
-        return zip(self.result_keys, [
+        return list(zip(self.result_keys, [
             pka_negative, pka_positive, pka_total,
             pka_number, pka_strongest_acidic, pka_strongest_basic,
-            ])
+            ]))
 
 
 class AvgCharge(FloatPlugin):

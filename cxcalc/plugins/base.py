@@ -1,4 +1,8 @@
 import logging
+try:
+  str
+except NameError:
+  str = str
 
 
 __all__ = ["Plugin", "FloatPlugin", "StringPlugin", "IntegerPlugin"]
@@ -15,7 +19,7 @@ class PluginBase(object):
     def __init__(self, options=None):
         if options is None:
             options = self.default_options
-        if isinstance(options, basestring):
+        if isinstance(options, str):
             if options:
                 options = options.split(" ")
             else:
@@ -71,12 +75,12 @@ class Plugin(PluginBase):
             else:
                 try:
                     value = self.coerce(value)
-                except Exception, e:
+                except Exception as e:
                     logger.error("%s coerce error | value: %s", self.name, value)
                     logger.exception(e)
                     value = None
             _values.append(value)
-        return zip(self.result_keys, _values)
+        return list(zip(self.result_keys, _values))
 
 
 FloatPlugin = Plugin
