@@ -1,8 +1,8 @@
 import logging
 try:
-  str
+  basestring
 except NameError:
-  str = str
+  basestring = str
 
 
 __all__ = ["Plugin", "FloatPlugin", "StringPlugin", "IntegerPlugin"]
@@ -19,7 +19,7 @@ class PluginBase(object):
     def __init__(self, options=None):
         if options is None:
             options = self.default_options
-        if isinstance(options, str):
+        if isinstance(options, basestring):
             if options:
                 options = options.split(" ")
             else:
