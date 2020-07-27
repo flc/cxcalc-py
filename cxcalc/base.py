@@ -1,5 +1,6 @@
-import logging
+import sys
 import os
+import logging
 import subprocess
 import threading
 from subprocess import Popen, PIPE
@@ -8,6 +9,7 @@ from .plugins import SDFPlugin
 
 
 logger = logging.getLogger(__name__)
+PY3 = sys.version_info[0] >= 3
 
 
 class Base(object):
@@ -16,8 +18,8 @@ class Base(object):
         '/usr/bin/cxcalc',
         os.path.join(
             os.environ.get("VIRTUAL_ENV", "~"), "marvinbeans", "bin", "cxcalc"
-            )
-        ]
+        )
+    ]
     default_options = ""
 
     def __init__(self, plugins, options=None, bin_path=None, callback=None):
@@ -37,7 +39,7 @@ class Base(object):
             raise AssertionError(
                 "cxcalc bin path couldn't be detected, please specify "
                 "the bin_path argument",
-                )
+            )
         assert os.path.isfile(bin_path)
         self.bin_path = bin_path
 
@@ -94,7 +96,10 @@ class Base(object):
         write = stdin.write
         flush = stdin.flush
         for el in iterable:
-            write(el)
+            if PY3:
+                write(el.encode())
+            else:
+                write(el)
             flush()
         stdin.close()
 
@@ -105,6 +110,8 @@ class Base(object):
         chars = []
         while True:
             char = reader_func(1)
+            if PY3:
+                char = char.decode()
             if char == "":
                 break
             chars.append(char)
