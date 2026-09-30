@@ -1,8 +1,10 @@
 import sys
 import os
 import logging
+import signal
 import subprocess
 import threading
+import time
 from subprocess import Popen, PIPE
 
 from .plugins import SDFPlugin
@@ -10,6 +12,10 @@ from .plugins import SDFPlugin
 
 logger = logging.getLogger(__name__)
 PY3 = sys.version_info[0] >= 3
+
+
+class CalculatorTimeout(Exception):
+    """cxcalc did not finish within run()'s timeout; it was killed."""
 
 
 class Base(object):
@@ -73,6 +79,9 @@ class Base(object):
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
+                                # its own process group: cxcalc is a launcher script that
+                                # execs the JVM, and a timeout has to kill whichever is running
+                                start_new_session=True,
                                 )
 
     def get_process(self):
@@ -95,13 +104,16 @@ class Base(object):
         stdin = process.stdin
         write = stdin.write
         flush = stdin.flush
-        for el in iterable:
-            if PY3:
-                write(el.encode())
-            else:
-                write(el)
-            flush()
-        stdin.close()
+        try:
+            for el in iterable:
+                if PY3:
+                    write(el.encode())
+                else:
+                    write(el)
+                flush()
+            stdin.close()
+        except BrokenPipeError:
+            pass  # cxcalc exited or was killed before reading it all
 
     def process_line(self, line):
         pass
@@ -157,7 +169,7 @@ class Base(object):
         error_reader_thread.daemon = True
         return error_reader_thread
 
-    def _run(self, process, iterable):
+    def _run(self, process, iterable, deadline=None):
         out_buff = None
         error_buff = None
         #if capture:
@@ -172,17 +184,38 @@ class Base(object):
         for th in threads:
             th.start()
         for th in threads:
-            th.join()
+            th.join(None if deadline is None else max(0, deadline - time.monotonic()))
+            if th.is_alive():
+                self.kill(process)
+                for th in threads:
+                    th.join()  # the pipes close once the process is gone
+                raise CalculatorTimeout()
 
-    def run(self, iterable):
-        process = self.create_process()
-
-        self._run(process, iterable)
-
+    def kill(self, process):
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass  # already gone
         process.wait()
 
-        process.stdout.close()
-        process.stderr.close()
+    def run(self, iterable, timeout=None):
+        """Feed `iterable` to cxcalc and return its exit status.
+
+        With `timeout` (seconds, for the whole run), cxcalc is killed when it runs longer, and
+        CalculatorTimeout is raised. Without it, run() waits as long as cxcalc runs.
+        """
+        deadline = None if timeout is None else time.monotonic() + timeout
+        process = self.create_process()
+        try:
+            self._run(process, iterable, deadline)
+            try:
+                process.wait(None if deadline is None else max(0, deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                self.kill(process)
+                raise CalculatorTimeout()
+        finally:
+            process.stdout.close()
+            process.stderr.close()
 
         status = process.returncode
 

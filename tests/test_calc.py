@@ -1,5 +1,8 @@
+import subprocess
+import time
+
 import pytest
-from cxcalc import CollectCalculator
+from cxcalc import CalculatorTimeout, CollectCalculator
 from cxcalc.plugins import ExactMass, Mass, Name
 
 
@@ -35,3 +38,16 @@ def test_name_calc_from_smiles(smiles, iupac_name):
     properties = calc.get_data()[0]
     print(properties)
     assert properties['iupac_name'] == iupac_name
+
+
+def test_run_kills_cxcalc_after_its_timeout():
+    def calculators():
+        ps = subprocess.run(['ps', '-eo', 'pid,args'], capture_output=True, text=True).stdout
+        return {l.split()[0] for l in ps.splitlines() if 'chemaxon.marvin.Calculator' in l}
+
+    before = calculators()
+    calc = CollectCalculator(plugins=[Name()])
+    with pytest.raises(CalculatorTimeout):
+        calc.run(['CCO'], timeout=0.2)  # less than the JVM takes to start
+    time.sleep(1)
+    assert not calculators() - before  # the launcher and the JVM both

@@ -1,3 +1,3 @@
 from .base import (Calculator, CollectCalculator,
-                   SDFCalculator, CollectSDFCalculator)
+                   SDFCalculator, CollectSDFCalculator, CalculatorTimeout)
 from .plugins import *
